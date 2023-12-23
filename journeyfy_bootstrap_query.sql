@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Creato il: Dic 11, 2023 alle 14:30
+-- Creato il: Dic 23, 2023 alle 15:54
 -- Versione del server: 8.0.21
 -- Versione PHP: 7.4.9
 
@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS `blog` (
   `title` varchar(100) DEFAULT NULL,
   `createdOnUtc` datetime NOT NULL,
   PRIMARY KEY (`idBlog`),
-  KEY `idUser` (`idUser`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `fk_blog_user_idUser` (`idUser`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS `blogarticle` (
   `idBlog` char(36) NOT NULL,
   `article` text,
   PRIMARY KEY (`idBlogArticle`),
-  KEY `idBlog` (`idBlog`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `fk_blogarticle_blog_idBlog` (`idBlog`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS `blogmedia` (
   `idBlog` char(36) NOT NULL,
   `media` blob NOT NULL,
   PRIMARY KEY (`idBlogMedia`),
-  KEY `idBlog` (`idBlog`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `fk_blogmedia_blog_idBlog` (`idBlog`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -79,10 +79,22 @@ DROP TABLE IF EXISTS `destination`;
 CREATE TABLE IF NOT EXISTS `destination` (
   `idDestination` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `image` blob,
   `popularity` tinyint DEFAULT NULL,
   PRIMARY KEY (`idDestination`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `destinationcoverimage`
+--
+
+DROP TABLE IF EXISTS `destinationcoverimage`;
+CREATE TABLE IF NOT EXISTS `destinationcoverimage` (
+  `idDestination` int NOT NULL,
+  `image` blob,
+  PRIMARY KEY (`idDestination`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -99,8 +111,8 @@ CREATE TABLE IF NOT EXISTS `todo` (
   `openAt` varchar(255) DEFAULT NULL,
   `closeAt` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`idTodo`),
-  KEY `idDestination` (`idDestination`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `fk_todo_destination_idDestination` (`idDestination`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -121,10 +133,10 @@ CREATE TABLE IF NOT EXISTS `todorequest` (
   `openAt` varchar(255) DEFAULT NULL,
   `closeAt` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`idRequest`),
-  KEY `idTodo` (`idTodo`),
-  KEY `idUser` (`idUser`),
-  KEY `idDestination` (`idDestination`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `fk_todorequest_todo_idTodo` (`idTodo`),
+  KEY `fk_todorequest_user_idUser` (`idUser`),
+  KEY `fk_todorequest_destination_idDestination` (`idDestination`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -142,7 +154,49 @@ CREATE TABLE IF NOT EXISTS `user` (
   `idRole` int NOT NULL,
   `registeredOnUtc` datetime NOT NULL,
   PRIMARY KEY (`idUser`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Limiti per le tabelle scaricate
+--
+
+--
+-- Limiti per la tabella `blog`
+--
+ALTER TABLE `blog`
+  ADD CONSTRAINT `fk_blog_user_idUser` FOREIGN KEY (`idUser`) REFERENCES `user` (`idUser`);
+
+--
+-- Limiti per la tabella `blogarticle`
+--
+ALTER TABLE `blogarticle`
+  ADD CONSTRAINT `fk_blogarticle_blog_idBlog` FOREIGN KEY (`idBlog`) REFERENCES `blog` (`idBlog`);
+
+--
+-- Limiti per la tabella `blogmedia`
+--
+ALTER TABLE `blogmedia`
+  ADD CONSTRAINT `fk_blogmedia_blog_idBlog` FOREIGN KEY (`idBlog`) REFERENCES `blog` (`idBlog`);
+
+--
+-- Limiti per la tabella `destinationcoverimage`
+--
+ALTER TABLE `destinationcoverimage`
+  ADD CONSTRAINT `fk_destinationcoverimage_destination_idDestination` FOREIGN KEY (`idDestination`) REFERENCES `destination` (`idDestination`);
+
+--
+-- Limiti per la tabella `todo`
+--
+ALTER TABLE `todo`
+  ADD CONSTRAINT `fk_todo_destination_idDestination` FOREIGN KEY (`idDestination`) REFERENCES `destination` (`idDestination`);
+
+--
+-- Limiti per la tabella `todorequest`
+--
+ALTER TABLE `todorequest`
+  ADD CONSTRAINT `fk_todorequest_destination_idDestination` FOREIGN KEY (`idDestination`) REFERENCES `destination` (`idDestination`),
+  ADD CONSTRAINT `fk_todorequest_todo_idTodo` FOREIGN KEY (`idTodo`) REFERENCES `todo` (`idTodo`),
+  ADD CONSTRAINT `fk_todorequest_user_idUser` FOREIGN KEY (`idUser`) REFERENCES `user` (`idUser`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
