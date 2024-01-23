@@ -43,9 +43,9 @@ CREATE TABLE `destinationcoverimage` (
   `image` blob
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `todo`;
-CREATE TABLE `todo` (
-  `idTodo` int NOT NULL,
+DROP TABLE IF EXISTS `suggestion`;
+CREATE TABLE `suggestion` (
+  `idSuggestion` int NOT NULL,
   `idDestination` int NOT NULL,
   `type` int NOT NULL,
   `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
@@ -54,15 +54,15 @@ CREATE TABLE `todo` (
   `closeAt` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `todorequest`;
-CREATE TABLE `todorequest` (
+DROP TABLE IF EXISTS `suggestionrequest`;
+CREATE TABLE `suggestionrequest` (
   `idRequest` char(36) NOT NULL,
   `status` int NOT NULL,
   `requestType` int NOT NULL,
-  `idTodo` int DEFAULT NULL,
+  `idSuggestion` int DEFAULT NULL,
   `idUser` char(36) NOT NULL,
   `idDestination` int NOT NULL,
-  `todoType` int NOT NULL,
+  `suggestionType` int NOT NULL,
   `title` varchar(100) NOT NULL,
   `mapLink` varchar(255) DEFAULT NULL,
   `openAt` varchar(255) DEFAULT NULL,
@@ -100,15 +100,15 @@ ALTER TABLE `destination`
 ALTER TABLE `destinationcoverimage`
   ADD PRIMARY KEY (`idDestination`);
 
-ALTER TABLE `todo`
-  ADD PRIMARY KEY (`idTodo`),
-  ADD KEY `fk_todo_destination_idDestination` (`idDestination`);
+ALTER TABLE `suggestion`
+  ADD PRIMARY KEY (`idSuggestion`),
+  ADD KEY `fk_suggestion_destination_idDestination` (`idDestination`) USING BTREE;
 
-ALTER TABLE `todorequest`
+ALTER TABLE `suggestionrequest`
   ADD PRIMARY KEY (`idRequest`),
-  ADD KEY `fk_todorequest_todo_idTodo` (`idTodo`),
-  ADD KEY `fk_todorequest_user_idUser` (`idUser`),
-  ADD KEY `fk_todorequest_destination_idDestination` (`idDestination`);
+  ADD KEY `fk_suggestionrequest_destination_idDestination` (`idDestination`) USING BTREE,
+  ADD KEY `fk_suggestionrequest_user_idUser` (`idUser`) USING BTREE,
+  ADD KEY `fk_suggestionrequest_suggestion_idSuggestion` (`idSuggestion`) USING BTREE;
 
 ALTER TABLE `user`
   ADD PRIMARY KEY (`idUser`),
@@ -124,8 +124,8 @@ ALTER TABLE `blogmedia`
 ALTER TABLE `destination`
   MODIFY `idDestination` int NOT NULL AUTO_INCREMENT;
 
-ALTER TABLE `todo`
-  MODIFY `idTodo` int NOT NULL AUTO_INCREMENT;
+ALTER TABLE `suggestion`
+  MODIFY `idSuggestion` int NOT NULL AUTO_INCREMENT;
 
 
 ALTER TABLE `blog`
@@ -140,13 +140,13 @@ ALTER TABLE `blogmedia`
 ALTER TABLE `destinationcoverimage`
   ADD CONSTRAINT `fk_destinationcoverimage_destination_idDestination` FOREIGN KEY (`idDestination`) REFERENCES `destination` (`idDestination`);
 
-ALTER TABLE `todo`
-  ADD CONSTRAINT `fk_todo_destination_idDestination` FOREIGN KEY (`idDestination`) REFERENCES `destination` (`idDestination`);
+ALTER TABLE `suggestion`
+  ADD CONSTRAINT `fk_suggestion_destination_idDestination` FOREIGN KEY (`idDestination`) REFERENCES `destination` (`idDestination`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
-ALTER TABLE `todorequest`
-  ADD CONSTRAINT `fk_todorequest_destination_idDestination` FOREIGN KEY (`idDestination`) REFERENCES `destination` (`idDestination`),
-  ADD CONSTRAINT `fk_todorequest_todo_idTodo` FOREIGN KEY (`idTodo`) REFERENCES `todo` (`idTodo`),
-  ADD CONSTRAINT `fk_todorequest_user_idUser` FOREIGN KEY (`idUser`) REFERENCES `user` (`idUser`);
+ALTER TABLE `suggestionrequest`
+  ADD CONSTRAINT `fk_suggestionrequest_destination_idDestination` FOREIGN KEY (`idDestination`) REFERENCES `destination` (`idDestination`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `fk_suggestionrequest_suggestion_idSuggestion` FOREIGN KEY (`idSuggestion`) REFERENCES `suggestion` (`idSuggestion`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `fk_suggestionrequest_user_idUser` FOREIGN KEY (`idUser`) REFERENCES `user` (`idUser`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
